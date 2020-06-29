@@ -28,12 +28,16 @@ resource "aws_launch_configuration" "main" {
 
 resource "aws_autoscaling_group" "main" {
   count                = var.deployed ? 1 : 0
-  name                 = "asg-${var.project_id}-${var.deployed_app}-${var.deployment}"
+  name                 = "asg-${var.project_id}-${var.env}-${var.deployed_app}-${var.deployment}"
   launch_configuration = aws_launch_configuration.main[count.index].name
   min_size             = var.asg_min_size
   max_size             = var.asg_max_size
   target_group_arns    = var.target_group_arns
   vpc_zone_identifier  = var.subnet_ids
+
+  lifecycle {
+    create_before_destroy = true
+  }
 
   tags = [
     {
