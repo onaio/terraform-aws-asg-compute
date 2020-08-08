@@ -1,4 +1,4 @@
-# Auto-Scaling Compute Terraform module
+# Auto-Scaling Compute Terraform module [![Build Status](https://github.com/onaio/terraform-aws-asg-compute/workflows/CI/badge.svg)](https://github.com/onaio/terraform-aws-asg-compute/actions?query=workflow%3ACI)
 
 s module creates an aws launch configuration, an aws auto-scaling group and cloudwatch alarms for the auto-scaling group. It also allows for a blue green deployment if the module is imported twice under a blue and a green configuration name.
 
