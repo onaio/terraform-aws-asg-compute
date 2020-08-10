@@ -8,14 +8,17 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform_version: [0.12.29, latest]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with:
-          path: "${{ github.repository }}"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
-      
+        with:
+          terraform_version: ${{ matrix.terraform_version }}
+
       - name: Terraform Format
         run: terraform fmt -check
