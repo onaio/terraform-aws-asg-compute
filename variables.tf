@@ -26,7 +26,45 @@ variable "ami" {}
 variable "instance_type" {}
 
 variable "cloudwatch_alarm_actions" {
-  type = list
+  type        = list(string)
+  default     = []
+  description = "The list of actions to execute when this alarm transitions into an ALARM state from any other state. Each action is specified as an Amazon Resource Name (ARN)."
+}
+
+variable "cloudwatch_ok_actions" {
+  type        = list(string)
+  default     = []
+  description = "The list of actions to execute when this alarm transitions into an OK state from any other state. Each action is specified as an Amazon Resource Name (ARN)."
+}
+
+variable "cloudwatch_insufficient_data_actions" {
+  type        = list(string)
+  default     = []
+  description = "The list of actions to execute when this alarm transitions into an INSUFFICIENT_DATA state from any other state. Each action is specified as an Amazon Resource Name (ARN)."
+}
+
+variable "cloudwatch_metric_evaluation_number_periods" {
+  type        = number
+  default     = 3
+  description = "The number of periods for a CloudWatch metric that should be checked before an alarm is raised."
+}
+
+variable "cloudwatch_metric_evaluation_period_length" {
+  type        = number
+  default     = 60
+  description = "The length of each of the CloudWatch metric periods for the alarms being set."
+}
+
+variable "cloudwatch_cpu_utilization_threshold" {
+  type        = number
+  default     = 80
+  description = "The threshold, in percentage, of CPU utilization for the auto-scaling group which when crossed an alarm will be raised."
+}
+
+variable "cloudwatch_memory_utilization_threshold" {
+  type        = number
+  default     = 80
+  description = "The threshold, in percentage, of memory utilization for the auto-scaling group which when crossed an alarm will be raised."
 }
 
 variable "subnet_ids" {

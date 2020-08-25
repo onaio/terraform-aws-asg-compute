@@ -90,120 +90,66 @@ resource "aws_autoscaling_group" "main" {
 
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
   count               = var.deployed ? 1 : 0
-  alarm_name          = "${var.project_id}-${var.deployment}-${var.env}-cpu-utilization"
+  alarm_name          = "${aws_autoscaling_group.main[0].name}-cpu-utilization"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
+  evaluation_periods  = var.cloudwatch_metric_evaluation_number_periods
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
-  period              = 600
-  threshold           = 95
+  period              = var.cloudwatch_metric_evaluation_period_length
+  threshold           = var.cloudwatch_cpu_utilization_threshold
   statistic           = "Average"
   unit                = "Percent"
-  alarm_description   = "Alarms when cpu-utilization is more than 95% for more than 10min for instance with AMI ${var.ami}"
+  alarm_description   = "Alarms when CPU utilization is more than 90% for more than 3 * 60 seconds for instances in ASG ${aws_autoscaling_group.main[0].name}"
 
   dimensions = {
-    ImageId = var.ami
+    AutoScalingGroupName = aws_autoscaling_group.main[0].name
   }
 
-  alarm_actions = var.cloudwatch_alarm_actions
+  alarm_actions             = var.cloudwatch_alarm_actions
+  ok_actions                = var.cloudwatch_ok_actions
+  insufficient_data_actions = var.cloudwatch_insufficient_data_actions
 }
 
-resource "aws_cloudwatch_metric_alarm" "disk_write_bytes" {
+resource "aws_cloudwatch_metric_alarm" "mem_utilization" {
   count               = var.deployed ? 1 : 0
-  alarm_name          = "${var.project_id}-${var.deployment}-${var.env}-disk-writes"
+  alarm_name          = "${aws_autoscaling_group.main[0].name}-mem-utilization"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = "DiskWriteBytes"
-  namespace           = "AWS/EC2"
-  period              = 3600
-  threshold           = 550000000
+  evaluation_periods  = var.cloudwatch_metric_evaluation_number_periods
+  metric_name         = "mem_used_percent"
+  namespace           = "CWAgent"
+  period              = var.cloudwatch_metric_evaluation_period_length
+  threshold           = var.cloudwatch_memory_utilization_threshold
   statistic           = "Average"
-  unit                = "Bytes"
-  alarm_description   = "Alarms when disk write is more than 550 mb for more than one hour for instance with AMI ${var.ami}"
+  unit                = "Percent"
+  alarm_description   = "Alarms when memory utilization is more than 90% for more than 3 * 60 seconds for instances in ASG ${aws_autoscaling_group.main[0].name}"
 
   dimensions = {
-    ImageId = var.ami
+    AutoScalingGroupName = aws_autoscaling_group.main[0].name
   }
 
-  alarm_actions = var.cloudwatch_alarm_actions
-}
-
-resource "aws_cloudwatch_metric_alarm" "network_out" {
-  count               = var.deployed ? 1 : 0
-  alarm_name          = "${var.project_id}-${var.deployment}-${var.env}-network-out"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = "NetworkOut"
-  namespace           = "AWS/EC2"
-  period              = 900
-  threshold           = 40000000
-  statistic           = "Average"
-  unit                = "Bytes"
-  alarm_description   = "Alarms when Network Out is more than 40000000 for more than 15 mins for instance with AMI ${var.ami}"
-
-  dimensions = {
-    ImageId = var.ami
-  }
-
-  alarm_actions = var.cloudwatch_alarm_actions
-}
-
-resource "aws_cloudwatch_metric_alarm" "network_in" {
-  count               = var.deployed ? 1 : 0
-  alarm_name          = "${var.project_id}-${var.deployment}-${var.env}-network-in"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = "NetworkIn"
-  namespace           = "AWS/EC2"
-  period              = 900
-  threshold           = 400000000
-  statistic           = "Average"
-  unit                = "Bytes"
-  alarm_description   = "Alarms when Network In is more than 400000000 for more than 15 mins for instance with AMI ${var.ami}"
-
-  dimensions = {
-    ImageId = var.ami
-  }
-
-  alarm_actions = var.cloudwatch_alarm_actions
-}
-
-resource "aws_cloudwatch_metric_alarm" "disk_read" {
-  count               = var.deployed ? 1 : 0
-  alarm_name          = "${var.project_id}-${var.deployment}-${var.env}-disk-read"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 1
-  metric_name         = "DiskReadBytes"
-  namespace           = "AWS/EC2"
-  period              = 3600
-  threshold           = 550000000
-  statistic           = "Average"
-  unit                = "Bytes"
-  alarm_description   = "Alarms when disk read is more than 550 mb for more than one hour for instance with AMI ${var.ami}"
-
-  dimensions = {
-    ImageId = var.ami
-  }
-
-  alarm_actions = var.cloudwatch_alarm_actions
+  alarm_actions             = var.cloudwatch_alarm_actions
+  ok_actions                = var.cloudwatch_ok_actions
+  insufficient_data_actions = var.cloudwatch_insufficient_data_actions
 }
 
 resource "aws_cloudwatch_metric_alarm" "check_failed" {
   count               = var.deployed ? 1 : 0
-  alarm_name          = "${var.project_id}-${var.deployment}-${var.env}-check-failed"
+  alarm_name          = "${aws_autoscaling_group.main[0].name}-check-failed"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = 2
+  evaluation_periods  = var.cloudwatch_metric_evaluation_number_periods
   metric_name         = "StatusCheckFailed"
   namespace           = "AWS/EC2"
-  period              = 60
+  period              = var.cloudwatch_metric_evaluation_period_length
   threshold           = 1
   statistic           = "Maximum"
   unit                = "Count"
-  alarm_description   = "Alarms when Status Check Failed more than 1 time for more than 1 mins for instance with AMI ${var.ami}"
+  alarm_description   = "Alarms when Status Check failed more than 1 time for more than 3 * 60 seconds for instances in ASG ${aws_autoscaling_group.main[0].name}"
 
   dimensions = {
-    ImageId = var.ami
+    AutoScalingGroupName = aws_autoscaling_group.main[0].name
   }
 
-  alarm_actions = var.cloudwatch_alarm_actions
+  alarm_actions             = var.cloudwatch_alarm_actions
+  ok_actions                = var.cloudwatch_ok_actions
+  insufficient_data_actions = var.cloudwatch_insufficient_data_actions
 }
