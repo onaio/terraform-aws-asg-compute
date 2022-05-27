@@ -15,11 +15,11 @@ variable "asg_max_size" {}
 variable "asg_min_size" {}
 
 variable "security_groups" {
-  type = list
+  type = list(any)
 }
 
 variable "target_group_arns" {
-  type = list
+  type = list(any)
 }
 
 variable "ami" {}
@@ -68,7 +68,7 @@ variable "cloudwatch_memory_utilization_threshold" {
 }
 
 variable "subnet_ids" {
-  type = list
+  type = list(any)
 }
 
 variable "user_data" {}
