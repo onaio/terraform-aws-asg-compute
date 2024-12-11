@@ -26,6 +26,44 @@ resource "aws_launch_configuration" "main" {
   }
 }
 
+locals { common_tags = [
+  {
+    key                 = "OwnerList"
+    value               = var.owner
+    propagate_at_launch = true
+  },
+  {
+    key                 = "EndDate"
+    value               = var.end_date
+    propagate_at_launch = true
+  },
+  {
+    key                 = "EnvironmentList"
+    value               = var.env
+    propagate_at_launch = true
+  },
+  {
+    key                 = "ProjectList"
+    value               = var.project
+    propagate_at_launch = true
+  },
+  {
+    key                 = "DeploymentType"
+    value               = var.deployment_type
+    propagate_at_launch = true
+  },
+  {
+    key                 = "App"
+    value               = var.deployed_app
+    propagate_at_launch = true
+  },
+  {
+    key                 = "SoftwareVersion"
+    value               = var.software_version
+    propagate_at_launch = true
+  },
+] }
+
 resource "aws_autoscaling_group" "main" {
   count                = var.deployed ? 1 : 0
   name                 = "asg-${var.project_id}-${var.env}-${var.deployed_app}-${var.deployment}"
@@ -39,53 +77,26 @@ resource "aws_autoscaling_group" "main" {
     create_before_destroy = true
   }
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "${var.deployed_app}-${var.project}-${var.env}-${var.deployment}-${count.index}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "Group"
-      value               = "${var.deployed_app}-${var.project}-${var.env}-${var.deployment}"
-      propagate_at_launch = true
-    },
-    {
-      key                 = "OwnerList"
-      value               = var.owner
-      propagate_at_launch = true
-    },
-    {
-      key                 = "EndDate"
-      value               = var.end_date
-      propagate_at_launch = true
-    },
-    {
-      key                 = "EnvironmentList"
-      value               = var.env
-      propagate_at_launch = true
-    },
-    {
-      key                 = "ProjectList"
-      value               = var.project
-      propagate_at_launch = true
-    },
-    {
-      key                 = "DeploymentType"
-      value               = var.deployment_type
-      propagate_at_launch = true
-    },
-    {
-      key                 = "App"
-      value               = var.deployed_app
-      propagate_at_launch = true
-    },
-    {
-      key                 = "SoftwareVersion"
-      value               = var.software_version
-      propagate_at_launch = true
-    },
-  ]
+  tag {
+    key                 = "Name"
+    value               = "${var.deployed_app}-${var.project}-${var.env}-${var.deployment}-${count.index}"
+    propagate_at_launch = true
+  }
+  tag {
+    key                 = "Group"
+    value               = "${var.deployed_app}-${var.project}-${var.env}-${var.deployment}"
+    propagate_at_launch = true
+  }
+
+  dynamic "tag" {
+    for_each = local.common_tags
+    content {
+      key                 = tag.value.key
+      propagate_at_launch = tag.value.propagate_at_launch
+      value               = tag.value.value
+    }
+  }
+
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
