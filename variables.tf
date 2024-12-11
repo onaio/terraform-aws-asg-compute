@@ -1,5 +1,9 @@
 variable "deployment" {}
 variable "env" {}
+variable "storage_class" {
+  description = "storage class"
+  default     = "gp2"
+}
 variable "project" {}
 variable "project_id" {}
 variable "deployment_type" {

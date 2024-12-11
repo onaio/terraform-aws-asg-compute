@@ -14,7 +14,7 @@ resource "aws_launch_configuration" "main" {
   iam_instance_profile        = aws_iam_instance_profile.ec2.name
 
   root_block_device {
-    volume_type           = "gp2"
+    volume_type           = var.storage_class
     volume_size           = var.attached_volume_size
     delete_on_termination = true
   }
